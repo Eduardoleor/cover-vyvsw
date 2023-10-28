@@ -1,11 +1,12 @@
+import { router, useRootNavigationState } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import * as SecureStore from "expo-secure-store";
-import { SECURITY_STORAGE_SESSION } from "./src/constants/storage";
-import LoadingView from "./src/components/LoadingView";
+
 import ErrorView from "./src/components/ErrorView";
-import { router, useRootNavigationState } from "expo-router";
+import LoadingView from "./src/components/LoadingView";
+import { SECURITY_STORAGE_SESSION } from "./src/constants/storage";
 
 export default function App() {
   const [userHasSession, setUserHasSession] = useState<boolean>(false);
