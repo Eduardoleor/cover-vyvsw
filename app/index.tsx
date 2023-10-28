@@ -5,11 +5,14 @@ import * as SecureStore from "expo-secure-store";
 import { SECURITY_STORAGE_SESSION } from "./src/constants/storage";
 import LoadingView from "./src/components/LoadingView";
 import ErrorView from "./src/components/ErrorView";
+import { router, useRootNavigationState } from "expo-router";
 
 export default function App() {
   const [userHasSession, setUserHasSession] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+
+  const rootNavigationState = useRootNavigationState();
 
   useEffect(() => {
     SecureStore.getItemAsync(SECURITY_STORAGE_SESSION)
@@ -24,10 +27,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (userHasSession && !loading && !error) {
-      console.log("here");
+    if (!rootNavigationState?.key) {
+      return;
     }
-  }, []);
+
+    if (userHasSession && !loading && !error) {
+      router.replace("home");
+    }
+  }, [rootNavigationState]);
 
   return (
     <View style={styles.container}>
