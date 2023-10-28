@@ -1,57 +1,55 @@
-import { router, useRootNavigationState } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { useEffect } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import ErrorView from "./src/components/ErrorView";
+import Layout from "./src/components/Layout";
 import LoadingView from "./src/components/LoadingView";
-import { SECURITY_STORAGE_SESSION } from "./src/constants/storage";
+import { NAVIGATIONS_ROUTES } from "./src/constants/navigation";
+import useNavigationState from "./src/hooks/useNavigationState";
+import useSession from "./src/hooks/useSession";
 
 export default function App() {
-  const [userHasSession, setUserHasSession] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-
-  const rootNavigationState = useRootNavigationState();
+  const { isReadyNavigation } = useNavigationState();
+  const { userHasSession, loading, error } = useSession();
 
   useEffect(() => {
-    SecureStore.getItemAsync(SECURITY_STORAGE_SESSION)
-      .then((value) => {
-        if (value) {
-          setUserHasSession(true);
-        }
-        setUserHasSession(false);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!rootNavigationState?.key) {
-      return;
+    if (isReadyNavigation && !loading && !error) {
+      userHasSession && router.replace(NAVIGATIONS_ROUTES.HOME);
     }
+  }, [isReadyNavigation]);
 
-    if (userHasSession && !loading && !error) {
-      router.replace("home");
-    }
-  }, [rootNavigationState]);
+  if (loading) {
+    return <LoadingView />;
+  }
+
+  if (error) {
+    return <ErrorView />;
+  }
 
   return (
-    <View style={styles.container}>
-      {loading && <LoadingView />}
-      {error && <ErrorView />}
-      {!loading && !error && <Text>Bienvenido</Text>}
-      <StatusBar style="auto" />
-    </View>
+    <Layout>
+      <View style={{ flex: 1 }}>
+        <Text>Bievenido</Text>
+        <Text>
+          Ingresa a tu cuenta o registrate para comenzar a usar la app.
+        </Text>
+        <View style={styles.content}>
+          <TextInput placeholder="Usuario" />
+          <TextInput placeholder="Contraseña" />
+          <Button title="Ingesar" />
+          <Text>o</Text>
+          <Button title="Registrarse" />
+        </View>
+      </View>
+    </Layout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
   },
 });
