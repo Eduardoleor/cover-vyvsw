@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 import { auth } from "./firebaseConfig";
 import AuthComponent from "./src/components/AuthComponent";
 import HomeComponent from "./src/components/HomeComponent";
-import LoadingView from "./src/components/LoadingView";
+import LoadingView from "./src/views/LoadingView";
 import SignUpComponent from "./src/components/SignUpComponent";
 import store from "./src/redux/store";
 

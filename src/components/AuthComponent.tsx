@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 
-import Layout from "./LayoutView";
+import Layout from "../views/LayoutView";
 import { RootStackParamList } from "../../App";
 import { useCustomSelector } from "../hooks/useCustomSelector";
 import { AppDispatch } from "../redux/store";
