@@ -1,6 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { ThemeProvider, createTheme, lightColors } from "@rneui/themed";
 import { useEffect, useState } from "react";
+import { Platform } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 
 import { auth } from "./firebaseConfig";
@@ -17,6 +20,15 @@ export type RootStackParamList = {
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
+
+const theme = createTheme({
+  lightColors: {
+    ...Platform.select({
+      default: lightColors.platform.android,
+      ios: lightColors.platform.ios,
+    }),
+  },
+});
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -35,14 +47,38 @@ export default function App() {
   }
 
   return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <RootStack.Navigator initialRouteName={hasSession ? "Home" : "Auth"}>
-          <RootStack.Screen name="Auth" component={AuthComponent} />
-          <RootStack.Screen name="Home" component={HomeComponent} />
-          <RootStack.Screen name="SignUp" component={SignUpComponent} />
-        </RootStack.Navigator>
-      </NavigationContainer>
-    </Provider>
+    <SafeAreaProvider>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <NavigationContainer>
+            <RootStack.Navigator
+              initialRouteName={hasSession ? "Home" : "Auth"}
+            >
+              <RootStack.Screen
+                name="Auth"
+                component={AuthComponent}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <RootStack.Screen
+                name="Home"
+                component={HomeComponent}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <RootStack.Screen
+                name="SignUp"
+                component={SignUpComponent}
+                options={{
+                  headerShown: false,
+                }}
+              />
+            </RootStack.Navigator>
+          </NavigationContainer>
+        </Provider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

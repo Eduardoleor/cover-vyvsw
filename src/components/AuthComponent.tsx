@@ -1,67 +1,107 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Button, Input, Text } from "@rneui/base";
 import React, { useState } from "react";
-import { View, Text, TextInput, Button } from "react-native"; // Import View, Text, TextInput, and Button
+import { StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 
+import Layout from "./LayoutView";
 import { RootStackParamList } from "../../App";
 import { useCustomSelector } from "../hooks/useCustomSelector";
 import { AppDispatch } from "../redux/store";
-import { loginUser, logoutUser } from "../redux/userSlice";
+import { loginUser, resetStatus } from "../redux/userSlice";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Auth">;
 
-function AuthComponent({ navigation }: Props) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function AuthComponent({ navigation }: Props) {
+  const [user, setUser] = useState<{
+    email: string;
+    password: string;
+  }>({ email: "", password: "" });
 
   const dispatch = useDispatch<AppDispatch>();
-  const user = useCustomSelector((state) => state.user.user);
   const status = useCustomSelector((state) => state.user.status);
   const error = useCustomSelector((state) => state.user.error);
 
-  const handleRegister = () => {
-    navigation.navigate("SignUp");
-  };
+  const isLoading = status === "loading";
+  const isFailed = status === "failed";
 
-  const handleLogin = () => {
+  const handleSignIn = () => {
+    const { email, password } = user;
     dispatch(loginUser({ email, password })).then((resultAction) => {
       if (loginUser.fulfilled.match(resultAction)) {
-        navigation.navigate("Home");
+        navigation.replace("Home");
       }
     });
   };
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleSignUp = () => {
+    dispatch(resetStatus());
+    setUser({ email: "", password: "" });
+    navigation.navigate("SignUp");
   };
 
   return (
-    <View>
-      {status === "loading" && <Text>Loading...</Text>}
-      {status === "failed" && <Text>Error: {error}</Text>}
-      {user ? (
-        <View>
-          <Text>Welcome, {user.user?.email}!</Text>
-          <Button title="Logout" onPress={handleLogout} />
-        </View>
-      ) : (
-        <View>
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-          />
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-          />
-          <Button title="Register" onPress={handleRegister} />
-          <Button title="Login" onPress={handleLogin} />
-        </View>
-      )}
-    </View>
+    <Layout>
+      <Text h4 style={styles.title}>
+        Bienvenido
+      </Text>
+      <Text>
+        Inicia sesión o crea una cuenta para comenzar a usar la aplicación.
+      </Text>
+      <View style={styles.container}>
+        <Input
+          placeholder="Correo electrónico"
+          value={user.email}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          onChangeText={(text) => setUser({ ...user, email: text })}
+        />
+        <Input
+          placeholder="Contraseña"
+          value={user.password}
+          onChangeText={(text) => setUser({ ...user, password: text })}
+          secureTextEntry
+        />
+        {isFailed && <Text style={styles.message}>{error}</Text>}
+        <Button
+          title="Iniciar sesión"
+          disabled={isLoading}
+          loading={isLoading}
+          onPress={handleSignIn}
+          loadingProps={{
+            color: "blue",
+          }}
+        />
+        <Text h4 style={styles.textO}>
+          o
+        </Text>
+        <Button
+          title="Registrarse"
+          type="clear"
+          disabled={isLoading}
+          onPress={handleSignUp}
+        />
+      </View>
+    </Layout>
   );
 }
 
-export default AuthComponent;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  title: {
+    marginVertical: 10,
+  },
+  message: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  textO: {
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+  },
+});

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -8,10 +8,12 @@ type LayoutProps = {
 
 export default function Layout({ children, style }: LayoutProps) {
   return (
-    <View style={[styles.container, style]}>
-      {children}
+    <>
       <StatusBar style="auto" />
-    </View>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>{children}</View>
+      </SafeAreaView>
+    </>
   );
 }
 
