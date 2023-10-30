@@ -4,10 +4,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updateProfile,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 import { RootState } from "./store";
-import { auth } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 
 export interface UserState {
   user: UserCredential | null;
@@ -23,16 +25,30 @@ const initialState: UserState = {
 
 export const registerUser = createAsyncThunk<
   UserCredential,
-  { email: string; password: string }
->("user/register", async ({ email, password }, { rejectWithValue }) => {
+  { name: string; email: string; password: string }
+>("user/register", async ({ name, email, password }, { rejectWithValue }) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
+
+    await updateProfile(userCredential.user, {
+      displayName: name,
+    });
+
+    const user = userCredential.user;
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, {
+      displayName: name,
+      email: user.email,
+      uid: user.uid,
+    });
+
     return userCredential;
   } catch (error: any) {
+    console.log(error);
     let errorMessage = "An error occurred during registration."; // Default error message
 
     if (error.code === "auth/email-already-in-use") {

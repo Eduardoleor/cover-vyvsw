@@ -4,6 +4,7 @@ import { View, Text, Button } from "react-native";
 import { useDispatch } from "react-redux";
 
 import { RootStackParamList } from "../../App";
+import useUserInfo from "../hooks/useUserInfo";
 import { AppDispatch } from "../redux/store";
 import { logoutUser } from "../redux/userSlice";
 
@@ -11,6 +12,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 export default function HomeComponent({ navigation }: Props) {
   const dispatch = useDispatch<AppDispatch>();
+  const user = useUserInfo();
 
   const handleLogout = async () => {
     dispatch(logoutUser());
@@ -25,7 +27,7 @@ export default function HomeComponent({ navigation }: Props) {
         alignItems: "center",
       }}
     >
-      <Text>HomeComponent1222</Text>
+      <Text>{user?.displayName}</Text>
       <Button title="Logout" onPress={() => handleLogout()} />
     </View>
   );

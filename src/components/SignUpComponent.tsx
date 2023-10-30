@@ -4,20 +4,26 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 
-import Layout from "../views/LayoutView";
 import { RootStackParamList } from "../../App";
 import { useCustomSelector } from "../hooks/useCustomSelector";
 import { AppDispatch } from "../redux/store";
 import { registerUser } from "../redux/userSlice";
+import Layout from "../views/LayoutView";
 
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
 
 export default function SignUpComponent({ navigation }: Props) {
   const [user, setUser] = useState<{
+    name: string;
     email: string;
     password: string;
     verifyPassword: string;
-  }>({ email: "", password: "", verifyPassword: "" });
+  }>({
+    name: "",
+    email: "",
+    password: "",
+    verifyPassword: "",
+  });
 
   const dispatch = useDispatch<AppDispatch>();
   const status = useCustomSelector((state) => state.user.status);
@@ -31,8 +37,8 @@ export default function SignUpComponent({ navigation }: Props) {
   };
 
   const handleSignUp = () => {
-    const { email, password } = user;
-    dispatch(registerUser({ email, password })).then((resultAction) => {
+    const { email, password, name } = user;
+    dispatch(registerUser({ email, password, name })).then((resultAction) => {
       if (registerUser.fulfilled.match(resultAction)) {
         navigation.replace("Home");
       } else if (registerUser.rejected.match(resultAction)) {
@@ -48,6 +54,11 @@ export default function SignUpComponent({ navigation }: Props) {
       </Text>
       <Text>Regístrate para comenzar a usar la aplicación.</Text>
       <View style={styles.container}>
+        <Input
+          placeholder="Nombre"
+          value={user.name}
+          onChangeText={(text) => setUser({ ...user, name: text })}
+        />
         <Input
           placeholder="Correo electrónico"
           value={user.email}
