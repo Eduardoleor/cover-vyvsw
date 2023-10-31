@@ -7,16 +7,23 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 
 import { auth } from "./firebaseConfig";
+import AddSubjectComponent from "./src/components/AddSubjectComponent";
 import AuthComponent from "./src/components/AuthComponent";
 import HomeComponent from "./src/components/HomeComponent";
-import LoadingView from "./src/views/LoadingView";
+import OnboardingComponent from "./src/components/OnboardingComponent";
 import SignUpComponent from "./src/components/SignUpComponent";
 import store from "./src/redux/store";
+import LoadingView from "./src/views/LoadingView";
 
 export type RootStackParamList = {
   Auth: undefined;
   Home: undefined;
   SignUp: undefined;
+  Onboarding: undefined;
+  AddSubject: {
+    universityId: string;
+    universityName: string;
+  };
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -72,7 +79,24 @@ export default function App() {
                 name="SignUp"
                 component={SignUpComponent}
                 options={{
-                  headerShown: false,
+                  headerTitle: "",
+                  headerBackTitle: "Atrás",
+                }}
+              />
+              <RootStack.Screen
+                name="Onboarding"
+                component={OnboardingComponent}
+                options={{
+                  headerTitle: "",
+                  headerBackTitle: "Atrás",
+                }}
+              />
+              <RootStack.Screen
+                name="AddSubject"
+                component={AddSubjectComponent}
+                options={{
+                  headerTitle: "",
+                  headerBackTitle: "Atrás",
                 }}
               />
             </RootStack.Navigator>

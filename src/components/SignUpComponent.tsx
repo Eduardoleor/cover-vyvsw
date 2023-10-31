@@ -118,9 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-  title: {
-    marginVertical: 10,
-  },
+  title: {},
   message: {
     color: "red",
     fontSize: 14,

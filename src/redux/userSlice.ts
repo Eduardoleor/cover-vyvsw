@@ -44,6 +44,9 @@ export const registerUser = createAsyncThunk<
       displayName: name,
       email: user.email,
       uid: user.uid,
+      subjects: [],
+      university: "",
+      enrollment: "",
     });
 
     return userCredential;
