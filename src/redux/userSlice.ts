@@ -33,7 +33,7 @@ export const registerUser = createAsyncThunk<
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       await updateProfile(userCredential.user, {
@@ -64,7 +64,7 @@ export const registerUser = createAsyncThunk<
 
       return rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk<
@@ -75,7 +75,7 @@ export const loginUser = createAsyncThunk<
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
     return userCredential;
   } catch (error: any) {
@@ -102,12 +102,12 @@ export const logoutUser = createAsyncThunk<void, void>(
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const resetStatus = createAsyncThunk<void, void>(
   "user/resetStatus",
-  async () => {}
+  async () => {},
 );
 
 const userSlice = createSlice({

@@ -55,7 +55,7 @@ export default function SignUpComponent({ navigation }: Props) {
         } else if (registerUser.rejected.match(resultAction)) {
           console.error(resultAction.payload);
         }
-      }
+      },
     );
   };
 
@@ -96,7 +96,7 @@ export default function SignUpComponent({ navigation }: Props) {
           onChangeText={(text) => {
             setUser({ ...user, email: text });
             setEmailError(
-              isValidEmail(text) ? "" : "El correo electrónico no es válido"
+              isValidEmail(text) ? "" : "El correo electrónico no es válido",
             );
           }}
         />
@@ -110,7 +110,7 @@ export default function SignUpComponent({ navigation }: Props) {
             setPasswordError(
               isValidPassword(text)
                 ? ""
-                : "La contraseña debe ser alfanumérica y tener al menos 6 caracteres"
+                : "La contraseña debe ser alfanumérica y tener al menos 6 caracteres",
             );
           }}
           rightIcon={

@@ -68,8 +68,8 @@ export default function OnboardingSubject({ navigation, route }: Props) {
     if (subject.length > 0) {
       setSubjects((prevSubjects) =>
         prevSubjects.map((subj) =>
-          subj.id === subjectId ? { ...subj, name: subject } : subj
-        )
+          subj.id === subjectId ? { ...subj, name: subject } : subj,
+        ),
       );
       setIsEditSubject(false);
       setSubject("");
@@ -107,7 +107,7 @@ export default function OnboardingSubject({ navigation, route }: Props) {
               console.log(err);
               Alert.alert(
                 "Error",
-                "Ocurrió un error al actualizar tu perfil, intenta nuevamente."
+                "Ocurrió un error al actualizar tu perfil, intenta nuevamente.",
               );
             }
           }
