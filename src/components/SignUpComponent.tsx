@@ -51,7 +51,7 @@ export default function SignUpComponent({ navigation }: Props) {
     dispatch(registerUser({ email, enrollment, password, name })).then(
       (resultAction) => {
         if (registerUser.fulfilled.match(resultAction)) {
-          navigation.replace("Home");
+          navigation.replace("Home", { refresh: true });
         } else if (registerUser.rejected.match(resultAction)) {
           console.error(resultAction.payload);
         }

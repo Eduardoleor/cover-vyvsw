@@ -19,7 +19,9 @@ import LoadingView from "./src/views/LoadingView";
 
 export type RootStackParamList = {
   Auth: undefined;
-  Home: undefined;
+  Home: {
+    refresh?: boolean;
+  };
   SignUp: undefined;
   OnboardingUniversity: undefined;
   OnboardingFaculty: {

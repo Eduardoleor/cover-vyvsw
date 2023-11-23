@@ -31,7 +31,7 @@ export default function AuthComponent({ navigation }: Props) {
     const { email, password } = user;
     dispatch(loginUser({ email, password })).then((resultAction) => {
       if (loginUser.fulfilled.match(resultAction)) {
-        navigation.replace("Home");
+        navigation.replace("Home", { refresh: true });
       }
     });
   };

@@ -1,6 +1,7 @@
 import {
   getFirestore,
   doc,
+  getDoc,
   updateDoc,
   FirestoreError,
 } from "firebase/firestore";
@@ -32,7 +33,21 @@ export const useUserProfile = (): UseUserProfileHook => {
       const userDocRef = doc(db, "users", userId);
 
       try {
-        await updateDoc(userDocRef, profileData);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+          throw new Error("Usuario no encontrado");
+        }
+        const userData = userDoc.data();
+
+        const existingSubjects = (userData.subjects as string[]) || [];
+        const updatedSubjects = Array.from(
+          new Set([...existingSubjects, ...profileData.subjects]),
+        );
+
+        await updateDoc(userDocRef, {
+          ...profileData,
+          subjects: updatedSubjects,
+        });
       } catch (err) {
         setError(err as FirestoreError);
       } finally {

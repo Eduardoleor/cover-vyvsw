@@ -12,7 +12,8 @@ interface UserInfo {
   displayName: string;
   email: string;
   enrollment: string;
-  university: string;
+  universityId: string;
+  facultyId: string;
   uid: string;
   subjects: string[];
 }
@@ -20,15 +21,18 @@ interface UserInfo {
 const useUserInfo = (): {
   userInfo: UserInfo | null;
   loading: boolean;
+  error: Error | null;
   refetchUserInfo: () => void;
 } => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const { user } = useAuth();
 
   const fetchUserInfo = useCallback(() => {
     if (user) {
       setLoading(true);
+      setError(null);
       const db = getFirestore();
       const userDocRef = doc(db, "users", user.uid);
 
@@ -39,11 +43,13 @@ const useUserInfo = (): {
           } else {
             setUserInfo(null);
           }
-          setLoading(false);
         })
         .catch((error: any) => {
           console.error("Error fetching user info:", error);
+          setError(error);
           setUserInfo(null);
+        })
+        .finally(() => {
           setLoading(false);
         });
     } else {
@@ -56,7 +62,7 @@ const useUserInfo = (): {
     fetchUserInfo();
   }, [fetchUserInfo]);
 
-  return { userInfo, loading, refetchUserInfo: fetchUserInfo };
+  return { userInfo, loading, error, refetchUserInfo: fetchUserInfo };
 };
 
 export default useUserInfo;

@@ -102,7 +102,9 @@ export default function OnboardingSubject({ navigation, route }: Props) {
                 facultyId: route.params.facultyId,
                 subjects: subjectNames,
               });
-              navigation.navigate("Home");
+              navigation.navigate("Home", {
+                refresh: true,
+              });
             } catch (err) {
               console.log(err);
               Alert.alert(
@@ -123,9 +125,11 @@ export default function OnboardingSubject({ navigation, route }: Props) {
   }, [error]);
 
   useEffect(() => {
-    navigation.setOptions({
-      headerTitle: `${route.params.facultyName} | ${route.params.universityName}`,
-    });
+    route.params.facultyName?.length > 0 &&
+      route.params.universityName?.length > 0 &&
+      navigation.setOptions({
+        headerTitle: `${route.params.facultyName} | ${route.params.universityName}`,
+      });
   }, []);
 
   return (
