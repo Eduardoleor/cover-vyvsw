@@ -1,7 +1,9 @@
 const getTwoLetterInitials = (name: string) => {
-  if (name?.length > 0) {
-    const [firstName, lastName] = name.split(" ");
-    return `${firstName[0]?.toUpperCase()}${lastName[0]?.toUpperCase()}`;
+  if (name && name.length > 0) {
+    const parts = name.split(" ");
+    const firstName = parts[0];
+    const lastName = parts.length > 1 ? parts[1] : "";
+    return `${firstName[0].toUpperCase()}${lastName[0]?.toUpperCase() || ""}`;
   } else {
     return "";
   }

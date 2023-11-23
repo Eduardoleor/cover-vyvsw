@@ -2,17 +2,19 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button, Input, Text } from "@rneui/base";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch } from "react-redux";
 
-import Layout from "../views/LayoutView";
 import { RootStackParamList } from "../../App";
 import { useCustomSelector } from "../hooks/useCustomSelector";
 import { AppDispatch } from "../redux/store";
 import { loginUser, resetStatus } from "../redux/userSlice";
+import Layout from "../views/LayoutView";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Auth">;
 
 export default function AuthComponent({ navigation }: Props) {
+  const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState<{
     email: string;
     password: string;
@@ -60,7 +62,14 @@ export default function AuthComponent({ navigation }: Props) {
           placeholder="Contraseña"
           value={user.password}
           onChangeText={(text) => setUser({ ...user, password: text })}
-          secureTextEntry
+          secureTextEntry={!showPassword}
+          rightIcon={
+            <Icon
+              name={!showPassword ? "eye-slash" : "eye"}
+              size={20}
+              onPress={() => setShowPassword(!showPassword)}
+            />
+          }
         />
         {isFailed && <Text style={styles.message}>{error}</Text>}
         <Button
@@ -71,6 +80,10 @@ export default function AuthComponent({ navigation }: Props) {
           loadingProps={{
             color: "blue",
           }}
+          buttonStyle={{
+            backgroundColor: "blue",
+            borderRadius: 10,
+          }}
         />
         <Text h4 style={styles.textO}>
           o
@@ -80,6 +93,9 @@ export default function AuthComponent({ navigation }: Props) {
           type="clear"
           disabled={isLoading}
           onPress={handleSignUp}
+          titleStyle={{
+            color: "blue",
+          }}
         />
       </View>
     </Layout>

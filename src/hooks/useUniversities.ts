@@ -2,56 +2,58 @@ import {
   getFirestore,
   collection,
   getDocs,
-  QuerySnapshot,
+  FirestoreError,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-interface University {
+type UniversityType = {
   id: string;
   name: string;
-  cover: string;
+  shortName: string;
   logo: string;
-}
-
-const useUniversities = (): {
-  universities: University[] | null;
-  loading: boolean;
-} => {
-  const [universities, setUniversities] = useState<University[] | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUniversities = async () => {
-      const db = getFirestore();
-      const universitiesCollection = collection(db, "universities"); // Replace 'universities' with your Firestore collection
-
-      try {
-        const querySnapshot: QuerySnapshot = await getDocs(
-          universitiesCollection
-        );
-        const universitiesData: University[] = [];
-
-        querySnapshot.forEach((doc: any) => {
-          universitiesData.push({
-            id: doc.id,
-            ...doc.data(),
-          });
-        });
-
-        setUniversities(universitiesData);
-        setLoading(false);
-      } catch (error) {
-        // Handle the error (e.g., log it or set an error state)
-        console.error("Error fetching universities:", error);
-        setUniversities(null);
-        setLoading(false);
-      }
-    };
-
-    fetchUniversities();
-  }, []);
-
-  return { universities, loading };
+  faculties: string[];
 };
 
-export default useUniversities;
+type UseUniversitiesHook = {
+  universities: UniversityType[];
+  loading: boolean;
+  error: FirestoreError | null;
+  reloadUniversities: () => void;
+};
+
+export const useUniversities = (): UseUniversitiesHook => {
+  const [universities, setUniversities] = useState<UniversityType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<FirestoreError | null>(null);
+
+  const fetchUniversities = useCallback(async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(
+        collection(getFirestore(), "universities"),
+      );
+      const universityData: UniversityType[] = querySnapshot.docs.map((doc) => {
+        const data = doc.data() as Omit<UniversityType, "id">;
+        return {
+          id: doc.id,
+          ...data,
+        };
+      });
+      setUniversities(universityData);
+    } catch (err) {
+      setError(err as FirestoreError);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchUniversities();
+  }, [fetchUniversities]);
+
+  return {
+    universities,
+    loading,
+    error,
+    reloadUniversities: fetchUniversities,
+  };
+};

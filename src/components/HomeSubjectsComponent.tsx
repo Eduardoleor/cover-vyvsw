@@ -1,19 +1,34 @@
 import { Icon, Text } from "@rneui/base";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
 type Props = {
   subjects: string[];
   onAddSubject: () => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 };
 
-export default function SubjectsComponent({ subjects, onAddSubject }: Props) {
+export default function SubjectsComponent({
+  subjects,
+  onAddSubject,
+  onRefresh,
+  isRefreshing,
+}: Props) {
   return (
-    <View>
-      {!subjects?.length ? (
+    <FlatList
+      data={[]}
+      renderItem={({ item }) => <></>}
+      keyExtractor={(item) => item.id}
+      refreshing={isRefreshing}
+      onRefresh={onRefresh}
+      style={{ flex: 1 }}
+      contentContainerStyle={{ flexGrow: 1 }}
+      ListEmptyComponent={
         <View style={styles.emptyContainer}>
           <Text style={styles.textEmpty}>
-            Aún no tienes materias asignadas, agrega una a tu listado.
+            Aún no tienes materias asignadas, agrega una a tu listado
+            presionando el botón de abajo.
           </Text>
           <Icon
             reverse
@@ -24,10 +39,8 @@ export default function SubjectsComponent({ subjects, onAddSubject }: Props) {
             onPress={onAddSubject}
           />
         </View>
-      ) : (
-        <Text>SubjectsComponent</Text>
-      )}
-    </View>
+      }
+    />
   );
 }
 
@@ -41,5 +54,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    flex: 1,
   },
 });

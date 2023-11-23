@@ -25,46 +25,47 @@ const initialState: UserState = {
 
 export const registerUser = createAsyncThunk<
   UserCredential,
-  { name: string; email: string; password: string }
->("user/register", async ({ name, email, password }, { rejectWithValue }) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+  { name: string; enrollment: string; email: string; password: string }
+>(
+  "user/register",
+  async ({ name, enrollment, email, password }, { rejectWithValue }) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    await updateProfile(userCredential.user, {
-      displayName: name,
-    });
+      await updateProfile(userCredential.user, {
+        displayName: name,
+      });
 
-    const user = userCredential.user;
-    const userDocRef = doc(db, "users", user.uid);
-    await setDoc(userDocRef, {
-      displayName: name,
-      email: user.email,
-      uid: user.uid,
-      subjects: [],
-      university: "",
-      enrollment: "",
-    });
+      const user = userCredential.user;
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, {
+        displayName: name,
+        email: user.email,
+        uid: user.uid,
+        enrollment,
+      });
 
-    return userCredential;
-  } catch (error: any) {
-    console.log(error);
-    let errorMessage = "An error occurred during registration."; // Default error message
+      return userCredential;
+    } catch (error: any) {
+      console.log(error);
+      let errorMessage = "An error occurred during registration."; // Default error message
 
-    if (error.code === "auth/email-already-in-use") {
-      errorMessage = "El correo electrónico ya está en uso.";
-    } else if (error.code === "auth/invalid-email") {
-      errorMessage = "El correo electrónico no es válido.";
-    } else if (error.code === "auth/weak-password") {
-      errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "El correo electrónico ya está en uso.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "El correo electrónico no es válido.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+      }
+
+      return rejectWithValue(errorMessage);
     }
-
-    return rejectWithValue(errorMessage);
   }
-});
+);
 
 export const loginUser = createAsyncThunk<
   UserCredential,

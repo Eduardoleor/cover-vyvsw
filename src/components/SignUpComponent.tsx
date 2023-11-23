@@ -1,25 +1,35 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button, Input, Text } from "@rneui/base";
-import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch } from "react-redux";
 
 import { RootStackParamList } from "../../App";
 import { useCustomSelector } from "../hooks/useCustomSelector";
 import { AppDispatch } from "../redux/store";
 import { registerUser } from "../redux/userSlice";
+import { isValidEmail } from "../utils/email";
+import { isValidPassword } from "../utils/password";
 import Layout from "../views/LayoutView";
 
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
 
 export default function SignUpComponent({ navigation }: Props) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
   const [user, setUser] = useState<{
     name: string;
+    enrollment: string;
     email: string;
     password: string;
     verifyPassword: string;
   }>({
     name: "",
+    enrollment: "",
     email: "",
     password: "",
     verifyPassword: "",
@@ -37,15 +47,28 @@ export default function SignUpComponent({ navigation }: Props) {
   };
 
   const handleSignUp = () => {
-    const { email, password, name } = user;
-    dispatch(registerUser({ email, password, name })).then((resultAction) => {
-      if (registerUser.fulfilled.match(resultAction)) {
-        navigation.replace("Home");
-      } else if (registerUser.rejected.match(resultAction)) {
-        console.error(resultAction.payload);
+    const { email, enrollment, password, name } = user;
+    dispatch(registerUser({ email, enrollment, password, name })).then(
+      (resultAction) => {
+        if (registerUser.fulfilled.match(resultAction)) {
+          navigation.replace("Home");
+        } else if (registerUser.rejected.match(resultAction)) {
+          console.error(resultAction.payload);
+        }
       }
-    });
+    );
   };
+
+  const isValidForm = useCallback(() => {
+    return (
+      user.name !== "" &&
+      user.enrollment !== "" &&
+      isValidEmail(user.email) &&
+      isValidPassword(user.password) &&
+      user.verifyPassword !== "" &&
+      user.password === user.verifyPassword
+    );
+  }, [user, isValidEmail, isValidPassword]);
 
   return (
     <Layout>
@@ -55,28 +78,64 @@ export default function SignUpComponent({ navigation }: Props) {
       <Text>Regístrate para comenzar a usar la aplicación.</Text>
       <View style={styles.container}>
         <Input
-          placeholder="Nombre"
+          placeholder="Nombre completo"
           value={user.name}
           onChangeText={(text) => setUser({ ...user, name: text })}
+        />
+        <Input
+          placeholder="Matrícula"
+          value={user.enrollment}
+          onChangeText={(text) => setUser({ ...user, enrollment: text })}
         />
         <Input
           placeholder="Correo electrónico"
           value={user.email}
           keyboardType="email-address"
           autoCapitalize="none"
-          onChangeText={(text) => setUser({ ...user, email: text })}
+          errorMessage={emailError}
+          onChangeText={(text) => {
+            setUser({ ...user, email: text });
+            setEmailError(
+              isValidEmail(text) ? "" : "El correo electrónico no es válido"
+            );
+          }}
         />
         <Input
           placeholder="Contraseña"
           value={user.password}
-          onChangeText={(text) => setUser({ ...user, password: text })}
-          secureTextEntry
+          secureTextEntry={!showPassword}
+          errorMessage={passwordError}
+          onChangeText={(text) => {
+            setUser({ ...user, password: text });
+            setPasswordError(
+              isValidPassword(text)
+                ? ""
+                : "La contraseña debe ser alfanumérica y tener al menos 6 caracteres"
+            );
+          }}
+          rightIcon={
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <Icon
+                  name="eye"
+                  size={20}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              ) : (
+                <Icon
+                  name="eye-slash"
+                  size={20}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              )}
+            </TouchableOpacity>
+          }
         />
         <Input
           placeholder="Verificar contraseña"
           value={user.verifyPassword}
           onChangeText={(text) => setUser({ ...user, verifyPassword: text })}
-          secureTextEntry
+          secureTextEntry={!showPasswordRepeat}
           errorMessage={
             user.password !== user.verifyPassword
               ? "Las contraseñas no coinciden"
@@ -88,15 +147,38 @@ export default function SignUpComponent({ navigation }: Props) {
           errorStyle={{
             marginBottom: user.password !== user.verifyPassword ? 20 : 0,
           }}
+          rightIcon={
+            <TouchableOpacity
+              onPress={() => setShowPasswordRepeat(!showPasswordRepeat)}
+            >
+              {showPasswordRepeat ? (
+                <Icon
+                  name="eye"
+                  size={20}
+                  onPress={() => setShowPasswordRepeat(!showPasswordRepeat)}
+                />
+              ) : (
+                <Icon
+                  name="eye-slash"
+                  size={20}
+                  onPress={() => setShowPasswordRepeat(!showPasswordRepeat)}
+                />
+              )}
+            </TouchableOpacity>
+          }
         />
         {isFailed && <Text style={styles.message}>{error}</Text>}
         <Button
           title="Registrarme"
-          disabled={isLoading || user.password !== user.verifyPassword}
+          disabled={isLoading || !isValidForm()}
           loading={isLoading}
           onPress={handleSignUp}
           loadingProps={{
             color: "blue",
+          }}
+          buttonStyle={{
+            backgroundColor: "blue",
+            borderRadius: 10,
           }}
         />
         <Text h4 style={styles.textO}>
@@ -107,6 +189,9 @@ export default function SignUpComponent({ navigation }: Props) {
           type="clear"
           disabled={isLoading}
           onPress={handleSignIn}
+          titleStyle={{
+            color: "blue",
+          }}
         />
       </View>
     </Layout>
@@ -118,7 +203,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-  title: {},
+  title: {
+    marginVertical: 10,
+  },
   message: {
     color: "red",
     fontSize: 14,

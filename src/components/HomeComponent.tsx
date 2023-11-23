@@ -4,19 +4,20 @@ import React from "react";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 
-import SubjectsComponent from "./SubjectsComponent";
+import HomeSubjectsComponent from "./HomeSubjectsComponent";
 import { RootStackParamList } from "../../App";
 import useUserInfo from "../hooks/useUserInfo";
 import { AppDispatch } from "../redux/store";
 import { logoutUser } from "../redux/userSlice";
 import { getTwoLetterInitials } from "../utils/profile";
+import { findFirstName } from "../utils/text";
 import Layout from "../views/LayoutView";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 export default function HomeComponent({ navigation }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, userInfo } = useUserInfo();
+  const { loading, userInfo, refetchUserInfo } = useUserInfo();
 
   const handleLogout = async () => {
     Alert.alert("Cerrar sesión", "¿Estás seguro?", [
@@ -35,13 +36,15 @@ export default function HomeComponent({ navigation }: Props) {
   };
 
   const handleAddSubject = () => {
-    navigation.navigate("Onboarding");
+    navigation.navigate("OnboardingUniversity");
   };
 
   return (
     <Layout>
       <View style={styles.header}>
-        <Text h4>Bienvenido, {userInfo?.displayName}</Text>
+        <Text h4>
+          Bienvenido, {findFirstName(userInfo?.displayName ?? "")}.
+        </Text>
         <Avatar
           size={32}
           rounded
@@ -54,9 +57,11 @@ export default function HomeComponent({ navigation }: Props) {
         {loading ? (
           <ActivityIndicator size="large" color="blue" />
         ) : (
-          <SubjectsComponent
+          <HomeSubjectsComponent
             subjects={userInfo?.subjects ?? []}
             onAddSubject={handleAddSubject}
+            onRefresh={refetchUserInfo}
+            isRefreshing={loading}
           />
         )}
       </View>

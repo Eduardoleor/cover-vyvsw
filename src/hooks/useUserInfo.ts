@@ -4,7 +4,7 @@ import {
   getDoc,
   DocumentSnapshot,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import useAuth from "./useAuth";
 
@@ -17,43 +17,46 @@ interface UserInfo {
   subjects: string[];
 }
 
-const useUserInfo = (): { userInfo: UserInfo | null; loading: boolean } => {
+const useUserInfo = (): {
+  userInfo: UserInfo | null;
+  loading: boolean;
+  refetchUserInfo: () => void;
+} => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth(); // Replace with your custom authentication hook
+  const { user } = useAuth();
 
-  useEffect(() => {
+  const fetchUserInfo = useCallback(() => {
     if (user) {
-      // Create a reference to the user's document in Firestore
+      setLoading(true);
       const db = getFirestore();
-      const userDocRef = doc(db, "users", user.uid); // Replace 'users' with your Firestore collection
+      const userDocRef = doc(db, "users", user.uid);
 
-      // Fetch the user's data
       getDoc(userDocRef)
         .then((docSnap: DocumentSnapshot) => {
           if (docSnap.exists()) {
-            // Document exists, set user info in state
             setUserInfo(docSnap.data() as UserInfo);
           } else {
-            // Document doesn't exist, set userInfo as null or handle accordingly
             setUserInfo(null);
           }
-          setLoading(false); // Set loading to false when data is loaded
+          setLoading(false);
         })
         .catch((error: any) => {
-          // Handle the error (e.g., log it or set an error state)
           console.error("Error fetching user info:", error);
           setUserInfo(null);
-          setLoading(false); // Set loading to false when there's an error
+          setLoading(false);
         });
     } else {
-      // User is not authenticated, set userInfo as null
       setUserInfo(null);
-      setLoading(false); // Set loading to false when not authenticated
+      setLoading(false);
     }
-  }, [user]); // Trigger the effect when the user object changes
+  }, [user]);
 
-  return { userInfo, loading };
+  useEffect(() => {
+    fetchUserInfo();
+  }, [fetchUserInfo]);
+
+  return { userInfo, loading, refetchUserInfo: fetchUserInfo };
 };
 
 export default useUserInfo;
