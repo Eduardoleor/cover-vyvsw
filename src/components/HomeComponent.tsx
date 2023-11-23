@@ -39,7 +39,7 @@ export default function HomeComponent({ navigation }: Props) {
   const { removeSubjects, removeSubject, editSubject } = useSubjects();
   const { schoolData, loading: loadingSchoolData } = useSchoolData(
     userInfo?.facultyId ?? "",
-    userInfo?.universityId ?? "",
+    userInfo?.universityId ?? ""
   );
 
   const [subjectSelected, setSubjectSelected] = useState<string | null>("");
@@ -129,13 +129,6 @@ export default function HomeComponent({ navigation }: Props) {
         text: "Crear solo portada",
         onPress: () => {
           setIsSimpleCover(true);
-          bottomSheetCompleteRef.current?.expand();
-        },
-      },
-      {
-        text: "Mezclar portada y otro PDF",
-        onPress: () => {
-          setIsSimpleCover(false);
           bottomSheetCompleteRef.current?.expand();
         },
       },
