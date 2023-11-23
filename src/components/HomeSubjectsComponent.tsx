@@ -1,5 +1,5 @@
-import { Button, Icon, Text } from "@rneui/base";
-import React from "react";
+import { Button, CheckBox, Icon, Text } from "@rneui/base";
+import React, { useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   onEditSubject: (subject: string) => void;
   onDeleteSubject: (subject: string) => void;
   onRefresh: () => void;
+  onSubjectSelect: (subject: string | null) => void;
 };
 
 export default function SubjectsComponent({
@@ -24,7 +25,16 @@ export default function SubjectsComponent({
   onEditSubject,
   onDeleteSubject,
   onRefresh,
+  onSubjectSelect,
 }: Props) {
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+
+  const handleSelectSubject = (subject: string) => {
+    const newSelectedSubject = selectedSubject === subject ? null : subject;
+    setSelectedSubject(newSelectedSubject);
+    onSubjectSelect(newSelectedSubject);
+  };
+
   return (
     <FlatList
       data={subjects}
@@ -36,7 +46,20 @@ export default function SubjectsComponent({
       renderItem={({ item }) => (
         <View>
           <View style={styles.containerItem}>
-            <Text style={styles.subjectName}>{item}</Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              <CheckBox
+                checked={item === selectedSubject}
+                onPress={() => handleSelectSubject(item)}
+              />
+              <Text style={styles.subjectName}>{item}</Text>
+            </View>
             <View style={styles.contentItem}>
               <Icon
                 name="edit"
@@ -61,7 +84,15 @@ export default function SubjectsComponent({
       ListHeaderComponent={
         <View style={{ padding: 0 }}>
           {subjects?.length > 0 && (
-            <Text style={styles.textTitle}>Listado de materias asignadas.</Text>
+            <View>
+              <Text style={styles.textTitle}>
+                Listado de materias asignadas.
+              </Text>
+              <Text style={{ marginBottom: 10 }}>
+                Para crear una portada, selecciona una materia y presiona el
+                botón de abajo.
+              </Text>
+            </View>
           )}
         </View>
       }
